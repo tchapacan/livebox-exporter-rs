@@ -1,2 +1,4 @@
 # livebox-exporter-rs
-A rust livebox prometheus exporter
+A livebox exporter built in rust for prometheus
+
+WIP..
