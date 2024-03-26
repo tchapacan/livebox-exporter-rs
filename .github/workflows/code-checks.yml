@@ -1,0 +1,59 @@
+name: "Code Checks"
+run-name: "Code Checks: ${{ github.event.pull_request.title }} ⛑️"
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: ${{ matrix.toolchain }} / ${{ matrix.arch.target }}
+    runs-on: ${{ matrix.arch.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: [stable]
+        arch:
+          - {os: "ubuntu-latest", target: "x86_64-unknown-linux-gnu", cross: false}
+          - {os: "ubuntu-latest", target: "armv7-unknown-linux-gnueabihf", cross: true}
+          - {os: "ubuntu-latest", target: "aarch64-unknown-linux-gnu", cross: true}
+
+    steps:
+      - name: "Checkout repo 👉"
+        uses: actions/checkout@v3
+
+      - name: "Install toolchain 🦀"
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.arch.target }}
+          components: rustfmt, clippy
+          override: true
+
+      - name: "Fetch dependencies 🛠️"
+        uses: actions-rs/cargo@v1
+        with:
+          command: fetch
+
+      - name: "Check build platform 📺"
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --target=${{ matrix.arch.target }}
+          use-cross: ${{ matrix.arch.cross }}
+
+      - name: "Format code 🔍"
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+      - name: "Clippy code 🔍"
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-features
