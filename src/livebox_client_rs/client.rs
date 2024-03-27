@@ -1,17 +1,20 @@
-use std::net::Ipv4Addr;
-use std::collections::HashMap;
-use cookie::Cookie;
-use serde_json::{json, Value};
-use hyper::{
-    body::{Body, Bytes}, client::HttpConnector, header::{AUTHORIZATION, CONTENT_TYPE, COOKIE, SET_COOKIE}, Method, Request
-};
-use log::{trace, debug};
 use crate::{
-    livebox_client_rs::status::Status, 
-    livebox_client_rs::wan::WANConfiguration, 
     livebox_client_rs::devices::Device,
-    livebox_client_rs::metrics::{Metrics, DeviceMetrics}
+    livebox_client_rs::metrics::{DeviceMetrics, Metrics},
+    livebox_client_rs::status::Status,
+    livebox_client_rs::wan::WANConfiguration,
 };
+use cookie::Cookie;
+use hyper::{
+    body::{Body, Bytes},
+    client::HttpConnector,
+    header::{AUTHORIZATION, CONTENT_TYPE, COOKIE, SET_COOKIE},
+    Method, Request,
+};
+use log::{debug, trace};
+use serde_json::{json, Value};
+use std::collections::HashMap;
+use std::net::Ipv4Addr;
 
 #[derive(Debug, Clone)]
 pub struct Client {
@@ -20,7 +23,7 @@ pub struct Client {
     password: String,
     cookies: Vec<String>,
     context_id: Option<String>,
-    client: hyper::Client<HttpConnector>
+    client: hyper::Client<HttpConnector>,
 }
 
 impl Client {
@@ -33,11 +36,16 @@ impl Client {
             password: password.to_string(),
             cookies: Vec::new(),
             context_id: None,
-            client: hyper::Client::new()
+            client: hyper::Client::new(),
         }
     }
 
-    async fn post_request(&self, service: &str, method: &str, parameters: serde_json::Value) -> (hyper::http::response::Parts, Bytes) {
+    async fn post_request(
+        &self,
+        service: &str,
+        method: &str,
+        parameters: serde_json::Value,
+    ) -> (hyper::http::response::Parts, Bytes) {
         let post_data = json!({
             "service": service,
             "method": method,
@@ -50,7 +58,10 @@ impl Client {
             .header(AUTHORIZATION, "X-Sah-Login")
             .body(Body::from(post_data.to_string()))
             .expect("Could not build request.");
-        let (parts, body) = self.client.request(req).await
+        let (parts, body) = self
+            .client
+            .request(req)
+            .await
             .expect("There was an issue contacting the router.")
             .into_parts();
         let body_bytes = hyper::body::to_bytes(body).await.unwrap();
@@ -60,30 +71,48 @@ impl Client {
 
     pub async fn login(&mut self) {
         trace!("Logging in.");
-        let (parts, body_bytes) = self.post_request("sah.Device.Information", "createContext", serde_json::json!({
-            "applicationName": "so_sdkut",
-            "username": &self.username,
-            "password": &self.password
-        })).await;
+        let (parts, body_bytes) = self
+            .post_request(
+                "sah.Device.Information",
+                "createContext",
+                serde_json::json!({
+                    "applicationName": "so_sdkut",
+                    "username": &self.username,
+                    "password": &self.password
+                }),
+            )
+            .await;
         debug!("Status is {}.", parts.status.as_str());
         for ele in parts.headers.get_all(SET_COOKIE) {
             let cookie = Cookie::parse(ele.to_str().unwrap()).unwrap();
-            self.cookies.push(format!("{}={}", cookie.name(), cookie.value()));
+            self.cookies
+                .push(format!("{}={}", cookie.name(), cookie.value()));
         }
-        assert!(!self.cookies.is_empty(), "No cookie detected on login, there should be an error.");
-        let json: serde_json::Value = serde_json::from_slice(&body_bytes)
-            .expect("Could not parse JSON.");
+        assert!(
+            !self.cookies.is_empty(),
+            "No cookie detected on login, there should be an error."
+        );
+        let json: serde_json::Value =
+            serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
         assert_eq!(json["status"].as_u64().unwrap(), 0, "Status wasn't 0.");
         self.context_id = Some(json["data"]["contextID"].as_str().unwrap().to_string());
     }
 
-    async fn authenticated_post_request(&self, service: &str, method: &str, parameters: serde_json::Value) -> (hyper::http::response::Parts, Bytes) {
+    async fn authenticated_post_request(
+        &self,
+        service: &str,
+        method: &str,
+        parameters: serde_json::Value,
+    ) -> (hyper::http::response::Parts, Bytes) {
         let post_data = json!({
             "service": service,
             "method": method,
             "parameters": parameters
         });
-        assert!(self.context_id.is_some(), "Cannot make authenticated request without logging in beforehand.");
+        assert!(
+            self.context_id.is_some(),
+            "Cannot make authenticated request without logging in beforehand."
+        );
         let req = Request::builder()
             .method(Method::POST)
             .uri(format!("http://{}/ws", self.ip))
@@ -92,7 +121,10 @@ impl Client {
             .header(COOKIE, self.cookies.join("; "))
             .body(Body::from(post_data.to_string()))
             .expect("Could not build request.");
-        let (parts, body) = self.client.request(req).await
+        let (parts, body) = self
+            .client
+            .request(req)
+            .await
             .expect("There was an issue contacting the router.")
             .into_parts();
         let body_bytes = hyper::body::to_bytes(body).await.unwrap();
@@ -101,43 +133,58 @@ impl Client {
     }
 
     pub async fn get_status(&self) -> Status {
-        let (parts, body_bytes) = self.authenticated_post_request("DeviceInfo", "get", serde_json::json!({})).await;
+        let (parts, body_bytes) = self
+            .authenticated_post_request("DeviceInfo", "get", serde_json::json!({}))
+            .await;
         let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
         println!("Body was: '{}'.", std::str::from_utf8(&body_bytes).unwrap());
-        assert!(parts.status.is_success(), "Router answered with something else than a success code.");
+        assert!(
+            parts.status.is_success(),
+            "Router answered with something else than a success code."
+        );
         let status: Status = serde_json::from_value(json["status"].clone())
             .expect("Looks like the deserialized data is incomplete.");
         debug!("Deserialized status is: {:?}", status);
-        return status;
+        status
     }
 
     pub async fn get_wan_config(&self) -> WANConfiguration {
-        let (parts, body_bytes) = self.authenticated_post_request("NMC", "getWANStatus", serde_json::json!({})).await;
+        let (parts, body_bytes) = self
+            .authenticated_post_request("NMC", "getWANStatus", serde_json::json!({}))
+            .await;
         let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
         println!("Body was: '{}'.", std::str::from_utf8(&body_bytes).unwrap());
-        assert!(parts.status.is_success(), "Router answered with something else than a success code.");
-        let wan_config: WANConfiguration  = serde_json::from_value(json["data"].clone())
+        assert!(
+            parts.status.is_success(),
+            "Router answered with something else than a success code."
+        );
+        let wan_config: WANConfiguration = serde_json::from_value(json["data"].clone())
             .expect("Looks like the deserialized data is incomplete.");
         debug!("Deserialized wan is: {:?}", wan_config);
-        return wan_config;
+        wan_config
     }
 
     pub async fn get_devices(&self) -> Vec<Device> {
-        let (parts, body_bytes) = self.authenticated_post_request("Devices", "get", serde_json::json!({})).await;
+        let (parts, body_bytes) = self
+            .authenticated_post_request("Devices", "get", serde_json::json!({}))
+            .await;
         let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
-        assert!(parts.status.is_success() && json["status"].is_array(),
-            "Router answered with something else than a success code.");
-        let devices: Vec<Device>  = serde_json::from_value(json["status"].clone())
+        assert!(
+            parts.status.is_success() && json["status"].is_array(),
+            "Router answered with something else than a success code."
+        );
+        let devices: Vec<Device> = serde_json::from_value(json["status"].clone())
             .expect("Looks like the deserialized data is incomplete.");
         debug!("Deserialized devices is: {:?}", devices);
-        return devices;
+        devices
     }
 
     pub async fn get_metrics(&self) -> Vec<Metrics> {
         let post_data = json!({"Seconds": 0, "NumberOfReadings": 1});
-        let (parts, body_bytes) = self.authenticated_post_request("HomeLan", "getResults", post_data).await;
-        let json: Value = serde_json::from_slice(&body_bytes)
-            .expect("Could not parse JSON.");
+        let (_parts, body_bytes) = self
+            .authenticated_post_request("HomeLan", "getResults", post_data)
+            .await;
+        let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
         println!("Body was: '{}'.", std::str::from_utf8(&body_bytes).unwrap());
         let mut metrics: Vec<Metrics> = Vec::new();
         if let Some(status) = json["status"].as_object() {
@@ -150,7 +197,7 @@ impl Client {
             }
         }
         debug!("Deserialized metrics is: {:?}", metrics);
-        return metrics
+        metrics
     }
 
     pub async fn logout(&mut self) {
@@ -163,12 +210,16 @@ impl Client {
         let req = Request::builder()
             .method(Method::POST)
             .uri(format!("http://{}/ws", self.ip))
-            .header(AUTHORIZATION,
-                    format!("X-Sah-Logout {}", self.context_id.clone().unwrap()))
+            .header(
+                AUTHORIZATION,
+                format!("X-Sah-Logout {}", self.context_id.clone().unwrap()),
+            )
             .header(COOKIE, self.cookies.join("; "))
             .body(Body::from(post_data.to_string()))
             .expect("Could not build request.");
-        self.client.request(req).await
+        self.client
+            .request(req)
+            .await
             .expect("There was an issue contacting the router.");
         trace!("Logged out.");
         self.cookies.clear();
@@ -176,11 +227,10 @@ impl Client {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use httpmock::{MockServer, Method::POST};
+    use httpmock::{Method::POST, MockServer};
     use serde_json::json;
 
     fn get_mock_status() -> &'static str {
@@ -307,8 +357,7 @@ mod tests {
             when.method(POST)
                 .path("/ws")
                 .header("x-context", "test-context-id");
-            then.status(200)
-                .body(mock_status);
+            then.status(200).body(mock_status);
         });
         let mut client = Client::new("password");
         client.ip = server.address().to_string();
@@ -326,8 +375,7 @@ mod tests {
             when.method(POST)
                 .path("/ws")
                 .header("x-context", "test-context-id");
-            then.status(200)
-                .body(mock_wan_config);
+            then.status(200).body(mock_wan_config);
         });
         let mut client = Client::new("password");
         client.ip = server.address().to_string();
@@ -345,8 +393,7 @@ mod tests {
             when.method(POST)
                 .path("/ws")
                 .header("x-context", "test-context-id");
-            then.status(200)
-                .body(mock_devices);
+            then.status(200).body(mock_devices);
         });
         let mut client = Client::new("password");
         client.ip = server.address().to_string();
@@ -364,8 +411,7 @@ mod tests {
             when.method(POST)
                 .path("/ws")
                 .header("x-context", "test-context-id");
-            then.status(200)
-                .body(mock_metrics);
+            then.status(200).body(mock_metrics);
         });
         let mut client = Client::new("password");
         client.ip = server.address().to_string();
@@ -418,8 +464,7 @@ mod tests {
             when.method(POST)
                 .path("/ws")
                 .header("x-context", "test-context-id");
-            then.status(500)
-                .body("Internal Server Error");
+            then.status(500).body("Internal Server Error");
         });
         let mut client = Client::new("password");
         client.ip = server.address().to_string();
@@ -427,5 +472,4 @@ mod tests {
         client.context_id = Some("test-context-id".to_string());
         client.get_status().await;
     }
-
 }

@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: "Checkout repo 👉"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Install toolchain 🦀"
         uses: actions-rs/toolchain@v1
@@ -57,3 +57,14 @@ jobs:
         with:
           command: clippy
           args: --all-features
+      
+      - name: "Test code 🏃"
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+      - name: "Build code 🎁"
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --locked --target ${{ matrix.arch.target }}

@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all="PascalCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct WANConfiguration {
     pub wan_state: String,
     pub link_type: String,
@@ -19,5 +19,5 @@ pub struct WANConfiguration {
     #[serde(rename(deserialize = "IPv6Address"))]
     pub ipv6_address: String,
     #[serde(rename(deserialize = "IPv6DelegatedPrefix"))]
-    pub ipv6_delegated_prefix: String
+    pub ipv6_delegated_prefix: String,
 }
