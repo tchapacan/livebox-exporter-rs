@@ -1,8 +1,7 @@
-
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all="PascalCase")]
+#[serde(rename_all = "PascalCase")]
 pub struct Device {
     pub key: String,
     pub name: String,
