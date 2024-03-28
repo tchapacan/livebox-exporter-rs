@@ -1,4 +1,4 @@
-# livebox-exporter-rs (️WIP)
+# livebox-exporter-rs
 
 <p>
     <a href="https://github.com/tchapacan/livebox-exporter-rs">
