@@ -113,8 +113,9 @@ Options:
 Contributions are really welcome! If you encounter any issues, have suggestions, or would like to add/fix features, please do:
 
 - Open an issue to report bugs or request features.
-- Fork the repository, make your changes, and submit a pull request.
-- Contribution guidelines will be added soon.
+- Fork the repository, create your branch, make your changes, and submit a pull request.
+
+For more details here are the [contribution guidelines](CONTRIBUTING.md)
 
 
 ## Alternatives
