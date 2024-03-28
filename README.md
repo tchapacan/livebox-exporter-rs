@@ -1,8 +1,17 @@
 # livebox-exporter-rs (️WIP)
 
 <p>
+    <a href="https://github.com/tchapacan/livebox-exporter-rs">
+        <img src="https://img.shields.io/badge/dynamic/toml?url=https://raw.githubusercontent.com/tchapacan/livebox-exporter-rs/master/Cargo.toml&query=$.package.version&style=for-the-badge&label=Version" alt="version">
+    </a>
     <a href="https://github.com/tchapacan/livebox-exporter-rs/blob/main/LICENSE">
         <img src="https://img.shields.io/github/license/tchapacan/livebox-exporter-rs.svg?style=for-the-badge" alt="license">
+    </a>
+    <a href="https://github.com/tchapacan/livebox-exporter-rs/actions?query=workflow%3A%22Code%20Checks%22">
+        <img src="https://img.shields.io/github/actions/workflow/status/tchapacan/livebox-exporter-rs/code-checks.yml?style=for-the-badge" alt="github ci workflow">
+    </a>
+    <a href="https://api.securityscorecards.dev/projects/github.com/tchapacan/livebox-exporter-rs">
+      <img src="https://api.securityscorecards.dev/projects/github.com/tchapacan/livebox-exporter-rs/badge?style=for-the-badge" alt="ossf scorecard">
     </a>
 </p>
 
@@ -94,10 +103,10 @@ Options:
 
 ## Details
 
+![overview schema](./images/livebox-exporter-rs_details.svg)
+
 - Use the [prometheus_exporter_base](https://github.com/MindFlavor/prometheus_exporter_base) crate for formatting Prometheus metrics.
 - Based on a rework version of the [livebox](https://crates.io/crates/livebox/) rust client project to output additional metrics.
-
-> Schema soon available..
 
 ## Contributing
 
