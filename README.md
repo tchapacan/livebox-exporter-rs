@@ -97,7 +97,7 @@ Options:
 - Use the [prometheus_exporter_base](https://github.com/MindFlavor/prometheus_exporter_base) crate for formatting Prometheus metrics.
 - Based on a rework version of the [livebox](https://crates.io/crates/livebox/) rust client project to output additional metrics.
 
-> Schema soon available
+> Schema soon available..
 
 ## Contributing
 
