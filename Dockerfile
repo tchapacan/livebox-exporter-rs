@@ -1,11 +1,8 @@
 FROM --platform=$BUILDPLATFORM rust:bookworm as vendor
 ARG BUILDPLATFORM
 ARG TARGETPLATFORM
-RUN echo "Running on: $BUILDPLATFORM / Building for $TARGETPLATFORM"
 WORKDIR /app
-
 COPY ./Cargo.toml .
-#COPY ./Cargo.lock .
 COPY ./src src
 RUN mkdir .cargo && cargo vendor > .cargo/config.toml
 
@@ -15,7 +12,6 @@ WORKDIR /app
 COPY --from=vendor /app/.cargo .cargo
 COPY --from=vendor /app/vendor vendor
 COPY ./Cargo.toml .
-#COPY ./Cargo.lock .
 COPY ./src src
 RUN cargo build --release
 
