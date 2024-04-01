@@ -137,7 +137,6 @@ impl Client {
             .authenticated_post_request("DeviceInfo", "get", serde_json::json!({}))
             .await;
         let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
-        println!("Body was: '{}'.", std::str::from_utf8(&body_bytes).unwrap());
         assert!(
             parts.status.is_success(),
             "Router answered with something else than a success code."
@@ -153,7 +152,6 @@ impl Client {
             .authenticated_post_request("NMC", "getWANStatus", serde_json::json!({}))
             .await;
         let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
-        println!("Body was: '{}'.", std::str::from_utf8(&body_bytes).unwrap());
         assert!(
             parts.status.is_success(),
             "Router answered with something else than a success code."
@@ -185,7 +183,6 @@ impl Client {
             .authenticated_post_request("HomeLan", "getResults", post_data)
             .await;
         let json: Value = serde_json::from_slice(&body_bytes).expect("Could not parse JSON.");
-        println!("Body was: '{}'.", std::str::from_utf8(&body_bytes).unwrap());
         let mut metrics: Vec<Metrics> = Vec::new();
         if let Some(status) = json["status"].as_object() {
             for (key, value) in status.iter() {
