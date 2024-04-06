@@ -21,10 +21,13 @@ use std::{
 #[derive(Debug, Clone, Default)]
 struct MyOptions {}
 
+static LIVEBOX_EXPORTER_NAME: &str = env!("CARGO_PKG_NAME");
+static LIVEBOX_EXPORTER_VERSION: &str = env!("CARGO_PKG_VERSION");
+
 #[tokio::main]
 async fn main() {
-    let matches = Command::new("livebox-exporter-rs")
-        .version("0.1.0")
+    let matches = Command::new(LIVEBOX_EXPORTER_NAME)
+        .version(LIVEBOX_EXPORTER_VERSION)
         .author("tchapacan")
         .arg(
             Arg::new("port")
@@ -56,6 +59,14 @@ async fn main() {
                 .help("Livebox password [required]")
                 .value_parser(value_parser!(String))
                 .required(true),
+        )
+        .arg(
+            Arg::new("gateway")
+                .short('G')
+                .long("gateway")
+                .help("Livebox gateway ip address")
+                .value_parser(value_parser!(String))
+                .default_value("192.168.1.1"),
         )
         .get_matches();
 
@@ -115,7 +126,14 @@ async fn render_livebox_metrics(
             std::process::exit(1);
         }
     };
-    let mut client = Client::new(&livebox_password);
+    let ip = match matches.get_one::<String>("gateway") {
+        Some(gateway) => gateway.clone(),
+        None => {
+            eprintln!("Please provide a livebox gateway ip address with the -G or --gateway flag.");
+            std::process::exit(1);
+        }
+    };
+    let mut client = Client::new(&livebox_password, &ip);
     client.login().await;
     let status = client.get_status().await;
     let wan = client.get_wan_config().await;
@@ -285,8 +303,8 @@ mod tests {
     use maplit::hashmap;
 
     fn parse_args(args: Vec<&str>) -> clap::ArgMatches {
-        Command::new("livebox-exporter-rs")
-            .version("0.1.0")
+        Command::new(LIVEBOX_EXPORTER_NAME)
+            .version(LIVEBOX_EXPORTER_VERSION)
             .author("tchapacan")
             .arg(
                 Arg::new("port")
@@ -319,6 +337,14 @@ mod tests {
                     .value_name("PASSWORD")
                     .required(true),
             )
+            .arg(
+                Arg::new("gateway")
+                    .short('G')
+                    .long("gateway")
+                    .help("Livebox gateway ip address")
+                    .value_parser(value_parser!(String))
+                    .default_value("192.168.1.1"),
+            )
             .get_matches_from(args)
     }
 
@@ -339,6 +365,10 @@ mod tests {
             matches.get_one::<String>("password"),
             Some(&String::from("mypassword"))
         );
+        assert_eq!(
+            matches.get_one::<String>("gateway"),
+            Some(&String::from("192.168.1.1"))
+        );
     }
 
     #[test]
@@ -352,6 +382,8 @@ mod tests {
             "-vvv",
             "-P",
             "mypassword",
+            "-G",
+            "192.168.1.10"
         ];
         let matches = parse_args(args);
         assert_eq!(
@@ -366,6 +398,10 @@ mod tests {
         assert_eq!(
             matches.get_one::<String>("password"),
             Some(&String::from("mypassword"))
+        );
+        assert_eq!(
+            matches.get_one::<String>("gateway"),
+            Some(&String::from("192.168.1.10"))
         );
     }
 
