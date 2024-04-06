@@ -383,7 +383,7 @@ mod tests {
             "-P",
             "mypassword",
             "-G",
-            "192.168.1.10"
+            "192.168.1.10",
         ];
         let matches = parse_args(args);
         assert_eq!(

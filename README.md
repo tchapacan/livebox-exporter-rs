@@ -27,10 +27,10 @@ Available:
 - **Should work** on livebox 4 and upper 🤷🏻‍
 - **Extracts metrics:** general status, wan configuration, devices status, bandwidth
 - **Exposes metrics:** in Prometheus format, compatible with Grafana
+- **Docker image:** [tchapacan/livebox-exporter-rs:latest](https://hub.docker.com/r/tchapacan/livebox-exporter-rs)
 
 Future:
 
-- *Docker image soon available...*
 - *Grafana dashboard template soon available...*
 - *More metrics...*
 
@@ -51,7 +51,26 @@ Future:
 
 ## Usage
 
-To use **livebox-exporter-rs**, follow these steps:
+### Docker
+
+1. **Pull latest docker image:** to your local machine.
+
+   ```bash
+   docker pull tchapacan/livebox-exporter-rs:latest
+   ```
+
+2. **Run the Exporter:** run the docker images, using the options.
+
+    ```bash
+    docker run -d --name livebox-exporter-rs -h livebox-exporter-rs -p <exporter_port>:<exporter_port> tchapacan/livebox-exporter-rs:latest --password <livebox_password> --port <exporter_port>
+    ```
+
+3. **Access Metrics:** Once the exporter is running, access the exposed metrics at:
+
+   `http://localhost:<exporter_port>/metrics`
+
+
+### Sources
 
 1. **Clone the Repository:** to your local machine.
 
@@ -86,6 +105,7 @@ Supported command-line options (hope `-P` vs `-p` not to confusing):
 | -P, --password <password> | Livebox password **(required)**                 | None          |
 | -p, --port <port>         | Exporter port                                 | 9100          |
 | -l, --listen <address>    | Listen address                                | 0.0.0.0       |
+| -G, --gateway <address>   | Livebox gateway ip address                    | 192.168.1.1   |
 | -v, --verbose             | Enable verbose logging (repeat for increased verbosity) | Off     |
 | -h, --help                | Display help message                         | N/A           |
 
@@ -97,6 +117,7 @@ Options:
   -l, --listen <address>     listen address [default: 0.0.0.0]
   -v, --verbose...           verbose logging
   -P, --password <password>  Livebox password [required]
+  -G, --gateway <gateway>    Livebox gateway ip address [default: 192.168.1.1]
   -h, --help                 Print help
   -V, --version              Print version
 ```
