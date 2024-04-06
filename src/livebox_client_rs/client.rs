@@ -14,7 +14,6 @@ use hyper::{
 use log::{debug, trace};
 use serde_json::{json, Value};
 use std::collections::HashMap;
-use std::net::Ipv4Addr;
 
 #[derive(Debug, Clone)]
 pub struct Client {
@@ -27,11 +26,12 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn new(password: &str) -> Self {
+    pub fn new(password: &str, ip: &str) -> Self {
         trace!("Creating a new client.");
         assert!(!password.is_empty(), "Password is empty!");
+        assert!(!ip.is_empty(), "Gateway livebox ip address is empty!");
         Self {
-            ip: Ipv4Addr::new(192, 168, 1, 1).to_string(),
+            ip: ip.to_string(),
             username: "admin".to_string(),
             password: password.to_string(),
             cookies: Vec::new(),
@@ -317,10 +317,23 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_client_instantiation() {
+    async fn test_client_instantiation_default_gateway() {
         let password = "test_password";
-        let client = Client::new(password);
+        let gateway = "192.168.1.1";
+        let client = Client::new(password, gateway);
         assert_eq!(client.ip, "192.168.1.1");
+        assert_eq!(client.username, "admin");
+        assert_eq!(client.password, password);
+        assert!(client.cookies.is_empty());
+        assert!(client.context_id.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_client_instantiation_custom_gateway() {
+        let password = "test_password";
+        let gateway = "192.168.1.10";
+        let client = Client::new(password, gateway);
+        assert_eq!(client.ip, "192.168.1.10");
         assert_eq!(client.username, "admin");
         assert_eq!(client.password, password);
         assert!(client.cookies.is_empty());
@@ -339,7 +352,7 @@ mod tests {
                 .header("set-cookie", "session=mocked_session_id")
                 .body(json!({"status": 0, "data": {"contextID": "test-context-id"}}).to_string());
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.login().await;
         assert_eq!(client.cookies.len(), 1);
@@ -356,7 +369,7 @@ mod tests {
                 .header("x-context", "test-context-id");
             then.status(200).body(mock_status);
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.cookies.push("session=mocked_session_id".to_string());
         client.context_id = Some("test-context-id".to_string());
@@ -374,7 +387,7 @@ mod tests {
                 .header("x-context", "test-context-id");
             then.status(200).body(mock_wan_config);
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.cookies.push("session=mocked_session_id".to_string());
         client.context_id = Some("test-context-id".to_string());
@@ -392,7 +405,7 @@ mod tests {
                 .header("x-context", "test-context-id");
             then.status(200).body(mock_devices);
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.cookies.push("session=mocked_session_id".to_string());
         client.context_id = Some("test-context-id".to_string());
@@ -410,7 +423,7 @@ mod tests {
                 .header("x-context", "test-context-id");
             then.status(200).body(mock_metrics);
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.cookies.push("session=mocked_session_id".to_string());
         client.context_id = Some("test-context-id".to_string());
@@ -428,7 +441,7 @@ mod tests {
                 .header("cookie", "session=mocked_session_id");
             then.status(200);
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.cookies.push("session=mocked_session_id".to_string());
         client.context_id = Some("test-context-id".to_string());
@@ -448,7 +461,7 @@ mod tests {
                 .header("authorization", "X-Sah-Login");
             then.status(401);
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.login().await;
     }
@@ -463,7 +476,7 @@ mod tests {
                 .header("x-context", "test-context-id");
             then.status(500).body("Internal Server Error");
         });
-        let mut client = Client::new("password");
+        let mut client = Client::new("password", "192.168.1.1");
         client.ip = server.address().to_string();
         client.cookies.push("session=mocked_session_id".to_string());
         client.context_id = Some("test-context-id".to_string());
