@@ -83,12 +83,13 @@ Future:
     ```bash
     cd livebox-exporter-rs
     cargo build --release
+    cd target/release/
     ```
 
 3. **Run the Exporter:** run the binary, using the options.
 
     ```bash
-    livebox-exporter-rs -P <livebox_password> -p <exporter_port>
+    ./livebox-exporter-rs -P <livebox_password> -p <exporter_port>
     ```
 
 4. **Access Metrics:** Once the exporter is running, access the exposed metrics at:
