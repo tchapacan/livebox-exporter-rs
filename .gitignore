@@ -16,3 +16,6 @@ Cargo.lock
 # IDE cache folders
 .vscode/
 .idea/
+
+# Env vars file
+.env

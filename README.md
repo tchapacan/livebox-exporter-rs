@@ -22,18 +22,13 @@ A basic livebox exporter written in [rust](https://doc.rust-lang.org/book/title-
 
 ## Features
 
-Available:
-
 - **Should work** on livebox 4 and upper 🤷🏻‍
 - **Extracts metrics:** general status, wan configuration, devices status, bandwidth
 - **Exposes metrics:** in Prometheus format, compatible with Grafana
 - **Docker image:** [tchapacan/livebox-exporter-rs:latest](https://hub.docker.com/r/tchapacan/livebox-exporter-rs)
+- **Grafana dashboard template:** check the `example` folder
 
-Future:
-
-- *Grafana dashboard template soon available...*
-- *More metrics...*
-
+![grafana dashboard](./images/grafana-dashboard.png)
 
 ## Metrics
 
@@ -130,6 +125,58 @@ Options:
 - Use the [prometheus_exporter_base](https://github.com/MindFlavor/prometheus_exporter_base) crate for formatting Prometheus metrics.
 - Based on a rework version of the [livebox](https://crates.io/crates/livebox/) rust client project to output additional metrics.
 
+
+## Example (docker-compose)
+
+*Grafana/prometheus/livebox-exporter-rs*
+
+```sh
+example
+├── .env
+├── docker-compose.yaml
+├── grafana
+│   ├── HomeLan.json
+│   └── datasource.yml
+└── prometheus
+    └── prometheus.yml
+```
+
+### Requirements
+- Docker should be installed on your machine.
+
+### Environment Variables
+- Configure your livebox password .env and source it before running `docker-compose`.
+
+```sh
+cd example && cp .env.example .env
+```
+
+*Update env..*
+
+```sh
+source .env
+```
+
+> Update your `LIVEBOX_PASSWORD` env secrets variable and source it
+
+### Docker Compose
+- Run the following command to start the services defined in the `docker-compose.yaml` file:
+```sh
+docker-compose up -d
+```
+
+### Accessing Grafana
+- Open your web browser and navigate to http://localhost:3000.
+- Log in with the default credentials:
+    - Username: admin
+    - Password: grafana
+
+### Import dashboard template
+- Once logged into Grafana, click on the **+** icon in the left sidebar and select **Import**.
+- Upload **HomeLan.json** json dashboard template from example or copy paste content
+- Import and start enjoying your dashboard!
+
+
 ## Contributing
 
 Contributions are really welcome! If you encounter any issues, have suggestions, or would like to add/fix features, please do:
@@ -139,6 +186,9 @@ Contributions are really welcome! If you encounter any issues, have suggestions,
 
 For more details here are the [contribution guidelines](CONTRIBUTING.md)
 
+## Security
+
+If you discover any **security-related issues**, please follow the **responsible disclosure** process and report a security issues [here](https://github.com/tchapacan/livebox-exporter-rs/security/advisories/new). Thank you!
 
 ## Alternatives
 
