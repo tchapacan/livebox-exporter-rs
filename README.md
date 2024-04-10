@@ -32,16 +32,16 @@ A basic livebox exporter written in [rust](https://doc.rust-lang.org/book/title-
 
 ## Metrics
 
-| **Metric Name**                   | **Description**                         | **Type**  |
-|-------------------------------|-------------------------------------|-------|
-| livebox_infos_status         | Livebox general status              | gauge |
-| livebox_infos_uptime         | Livebox uptime                      | gauge |
-| livebox_infos_reboot         | Livebox count of reboots            | gauge |
-| livebox_wan_status           | Livebox wan status                  | gauge |
-| livebox_link_status          | Livebox link status                 | gauge |
-| livebox_interface_bytes_rx  | Livebox interface bytes received    | gauge |
-| livebox_interface_bytes_tx  | Livebox interface bytes transmitted | gauge |
-| livebox_device_status        | Livebox connected devices status    | gauge |
+| **Metric Name**              | **Description**                     | **Type**  |
+|------------------------------|-------------------------------------|-----------|
+| livebox_infos_status         | Livebox general status              | gauge     |
+| livebox_infos_uptime         | Livebox uptime                      | gauge     |
+| livebox_infos_reboot         | Livebox count of reboots            | gauge     |
+| livebox_wan_status           | Livebox wan status                  | gauge     |
+| livebox_link_status          | Livebox link status                 | gauge     |
+| livebox_interface_bytes_rx   | Livebox interface bytes received    | gauge     |
+| livebox_interface_bytes_tx   | Livebox interface bytes transmitted | gauge     |
+| livebox_device_status        | Livebox connected devices status    | gauge     |
 
 
 ## Usage
@@ -96,14 +96,14 @@ A basic livebox exporter written in [rust](https://doc.rust-lang.org/book/title-
 
 Supported command-line options (hope `-P` vs `-p` not to confusing):
 
-| Option                 | Description                                   | Default Value |
-|------------------------|-----------------------------------------------|---------------|
-| -P, --password <password> | Livebox password **(required)**                 | None          |
-| -p, --port <port>         | Exporter port                                 | 9100          |
-| -l, --listen <address>    | Listen address                                | 0.0.0.0       |
-| -G, --gateway <address>   | Livebox gateway ip address                    | 192.168.1.1   |
-| -v, --verbose             | Enable verbose logging (repeat for increased verbosity) | Off     |
-| -h, --help                | Display help message                         | N/A           |
+| Option                    | Description                                             | Default Value |
+|---------------------------|---------------------------------------------------------|---------------|
+| -P, --password <password> | Livebox password **(required)**                         | None          |
+| -p, --port <port>         | Exporter port                                           | 9100          |
+| -l, --listen <address>    | Listen address                                          | 0.0.0.0       |
+| -G, --gateway <address>   | Livebox gateway ip address                              | 192.168.1.1   |
+| -v, --verbose             | Enable verbose logging (repeat for increased verbosity) | Off           |
+| -h, --help                | Display help message                                    | N/A           |
 
 ```bash
 Usage: livebox-exporter-rs [OPTIONS] --password <password>
