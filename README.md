@@ -17,8 +17,6 @@
 
 A basic livebox exporter written in [rust](https://doc.rust-lang.org/book/title-page.html) 🦀. Start monitoring your livebox router's using [Prometheus](https://github.com/prometheus/prometheus) / [Grafana](https://github.com/grafana/grafana) 💪.
 
-> ℹ️ **Note:** this minimal, draft, poc, "tool" **almost work with some luck** as it is now 🤞, but for "cool" educational purpose only. Some alternatives already **[exists](#alternative)** (check below), but didn't find any **rust** version yet. As I always wanted to learn **rust**, and I have a **livebox router** next to me, let's fill the gap (I think lol)! **Contributions/help/suggestions are really welcome!**
-
 
 ## Features
 
