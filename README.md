@@ -15,7 +15,6 @@
     </a>
 </p>
 
-
 A basic livebox exporter written in [rust](https://doc.rust-lang.org/book/title-page.html) 🦀. Start monitoring your livebox router's using [Prometheus](https://github.com/prometheus/prometheus) / [Grafana](https://github.com/grafana/grafana) 💪.
 
 ## Features
@@ -151,11 +150,11 @@ cd example && cp .env.example .env
 
 *Update env..*
 
+> Update your `LIVEBOX_PASSWORD` env secrets variable and source it
+
 ```sh
 source .env
 ```
-
-> Update your `LIVEBOX_PASSWORD` env secrets variable and source it
 
 ### Docker Compose
 - Run the following command to start the services defined in the `docker-compose.yaml` file:
