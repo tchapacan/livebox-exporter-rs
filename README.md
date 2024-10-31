@@ -173,6 +173,8 @@ docker-compose up -d
 - Upload **HomeLan.json** json dashboard template from example or copy paste content
 - Import and start enjoying your dashboard!
 
+> Metrics might take few mins to come up (connected devices graph is 1h delayed in grafana due to default configuration)
+
 
 ## Contributing
 
