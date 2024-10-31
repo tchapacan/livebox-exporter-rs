@@ -1,6 +1,6 @@
 services:
   livebox-exporter-rs:
-      image: tchapacan/livebox-exporter-rs
+      image: tchapacan/livebox-exporter-rs:v0.1.2@sha256:04521ff32fce062b78ef7fad64cd6b2fed024e518245fb2a48970c96b3a1ffe8 # v0.1.2
       container_name: livebox-exporter-rs
       command:
         - "-P"
@@ -14,7 +14,7 @@ services:
         - LIVEBOX_PASSWORD
 
   prometheus:
-    image: prom/prometheus
+    image: prom/prometheus:v2.55.0@sha256:378f4e03703557d1c6419e6caccf922f96e6d88a530f7431d66a4c4f4b1000fe # v2.55.0
     container_name: prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -28,7 +28,7 @@ services:
       - monitoring_network
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:v11.3.0@sha256:a0f881232a6fb71a0554a47d0fe2203b6888fe77f4cefb7ea62bed7eb54e13c3 # v11.3.0
     container_name: grafana
     ports:
       - 3000:3000
