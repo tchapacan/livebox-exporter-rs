@@ -9,7 +9,7 @@ edition = "2021"
 clap = "4.5.3"
 cookie = "0.18.0"
 env_logger = "0.11.3"
-httpmock = "0.7.0"
+httpmock = "0.8.1"
 hyper = { version = "0.14.19", features = ["full"] }
 log = "0.4.21"
 maplit = "1.0.2"
